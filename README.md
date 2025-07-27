@@ -27,6 +27,13 @@ prisma folder contains schema.prisma file and model declarations.
 ##### 4
 
 migration changes initially:-
-npx prisma migrate dev --name init 
+npx prisma migrate dev --name init (migration folder under prisma folder)
+
 Any schema changes:-
-prisma db push
+prisma db push 
+
+for seed or data push :-
+seed file under prisma folder.
+add this on package file.
+npx prisma db seed
+and inspect data : npx prisma studio
