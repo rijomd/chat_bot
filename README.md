@@ -37,3 +37,6 @@ seed file under prisma folder.
 add this on package file.
 npx prisma db seed
 and inspect data : npx prisma studio
+
+##### 5
+authentication

@@ -8,4 +8,4 @@ type ResponseType = {
 
 export const response = ({ data, message, code }: ResponseType) => NextResponse.json({
     data: data, message: message || "success", code: code || 200
-});
+}, { status: code || 200 });
