@@ -1,3 +1,5 @@
+import { loginInActions } from "@/actions/authActions";
+import { NEXT_AUTH_SECRET } from "@/constants/authConstants";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 // or import GoogleProvider, GitHubProvider etc (for sso).
@@ -11,36 +13,49 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                if (!credentials?.email || !credentials.password) return null;
+                try {
+                    const data = await loginInActions({
+                        email: credentials?.email || "",
+                        password: credentials?.password || "",
+                    });
 
-                // Replace with real DB check
-                if (
-                    credentials.email === "admin@example.com" &&
-                    credentials.password === "admin"
-                ) {
-                    return { id: "1", name: "Admin", email: "admin@example.com" };
+                    if (data?.user) {
+                        return {
+                            id: data.user.id,
+                            email: data.user.email,
+                            token: data.token,
+                        };
+                    }
+                    return null;
+                } catch (err) {
+                    console.error("Authorize error:", err);
+                    return null;
                 }
-
-                return null;
             },
         }),
     ],
     session: {
         strategy: "jwt",
     },
-    pages: {
-        signIn: "/login",
+    jwt: {
+        secret: NEXT_AUTH_SECRET,
     },
+    // pages: {
+    //     signIn: "/login",
+    // },
     callbacks: {
-        async jwt({ token, user }: { token: any, user: any }) {
-            if (user) token.user = user;
+        async jwt({ token, user }) {
+            console.log(user, "user cllack");
+            // if (user) {
+            //     token.accessToken = user?.token;
+            // }
             return token;
         },
-        async session({ session, token }: { session: any, token: any }) {
-            if (token?.user) {
-                session.user = token.user as any;
-            }
+        async session({ session, token }) {
+            // Expose token to client
+            (session as any).accessToken = token.accessToken;
             return session;
         },
     },
+    secret: NEXT_AUTH_SECRET,
 };
