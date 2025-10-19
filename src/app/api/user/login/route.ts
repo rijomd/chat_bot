@@ -1,22 +1,48 @@
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
 import { DB } from "@/lib/db";
 import { response } from "@/lib/utils";
-import bcrypt from "bcrypt";
+import { expiresToken, JWT_SECRET } from "@/constants/authConstants";
+import { Messages, StatusCodes } from "@/constants/requestsConstants";
 
 export const POST = async (req: Request) => {
     const body = await req.json();
     const { email, password } = body;
 
-    const isExistEmail = await DB.user.findUnique({ where: { email: email } });
-
-    if (!isExistEmail) {
-        return response({ data: null, message: "user is not exist! please sign up", code: 404 });
+    if (!email || !password) {
+        return response({ data: null, message: Messages.VALIDATION_ERROR, code: StatusCodes.BAD_REQUEST });
     }
 
-    const hashPassword = await bcrypt.compare(password, isExistEmail.password);
+    const user = await DB.user.findUnique({ where: { email: email } });
+
+    if (!user) {
+        return response({ data: null, message: Messages.VALIDATION_ERROR, code: StatusCodes.NOT_FOUND });
+    }
+
+    const hashPassword = await bcrypt.compare(password, user.password);
 
     if (!hashPassword) {
-        return response({ data: null, message: "Authorization error", code: 401 });
+        return response({ data: null, message: Messages.UN_AUTHORIZED, code: StatusCodes.UN_AUTHORIZED });
     }
 
-    return response({ data: "12345678" });
+    const token = jwt.sign(
+        { userId: user.id, email: user.email },
+        JWT_SECRET,
+        { expiresIn: expiresToken }
+    );
+
+    return response({
+        data: {
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+            },
+            token,
+        },
+        message: Messages.SUCCESS,
+        code: StatusCodes.SUCCESS
+    });
+
 }

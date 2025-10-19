@@ -1,26 +1,59 @@
 "use client";
 import React, { useState } from 'react'
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
 import { Login } from '@/components/auth/Login'
 import { Signup } from '@/components/auth/Signup';
-import { loginInActions, signInActions } from '@/actions/authActions';
-import { signIn } from "next-auth/react";
+import { signInActions } from '@/actions/authActions';
 
-type Props = {}
-type LoginDataType = { email: string, password: string };
-type SignInDataType = { email: string, password: string, name: string };
+import { LoginDataType, SignInDataType } from '@/types/login';
+import { Modal } from '@/components/utils/Modal';
+import { ModalType } from '@/types/modal';
+import { DEFAULT_PATH } from '@/constants/pathConstants';
+import { useAuth, useLoadingBackdrop } from '@/lib/hook';
 
-export default function AuthPage(props: Props) {
+const modalPopupValues: Record<ModalType, ModalType> = {
+    error: "error",
+    success: "success",
+    warning: "warning",
+    "": "",
+};
+
+const initial = { msg: "", value: modalPopupValues[''] };
+
+export default function AuthPage() {
     const [isSignUp, setIsSignUp] = useState(false);
+    const [isSuccess, setIsSuccess] = useState<{ msg: string, value: ModalType }>(initial);
+    const [isSubmit, setIsSubmit] = useState(false);
+    const router = useRouter();
+
+    const { isLoading } = useAuth(false); // false = don't require auth
+    const { LoadingBackdrop } = useLoadingBackdrop(isLoading);
 
     const handleLogin = async (e: LoginDataType) => {
+        try {
+            setIsSubmit(true);
+            const res = await signIn("credentials", {
+                redirect: false,
+                email: e.email,
+                password: e.password,
+            });
 
-        const res = await signIn("credentials", {
-            redirect: false,
-            email: e.email,
-            password: e.password,
-        });
-        console.log(res, "res login");
+            setIsSubmit(false);
 
+            if (res?.error) {
+                setIsSuccess({ msg: res?.error, value: modalPopupValues.error });
+            }
+
+            if (res?.ok) {
+                router.push(DEFAULT_PATH);
+                router.refresh(); // Refresh to update session
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            setIsSuccess({ msg: "An error occurred during login", value: modalPopupValues.error });
+        }
     }
 
     const handleSignUp = (e: SignInDataType) => {
@@ -35,10 +68,10 @@ export default function AuthPage(props: Props) {
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-white to-blue-300 p-4 animate-gradient-move">
             <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6">
                 <h1 className="text-3xl font-extrabold text-center bg-gradient-to-r from-blue-100 via-blue-200 to-indigo-600 bg-clip-text text-transparent animate-gradient-move">
-                    Bus Reservation BS
+                    CHAT Box
                 </h1>
                 <div>
-                    {isSignUp ? <Signup handleSignUp={handleSignUp} /> : <Login handleLogin={handleLogin} />}
+                    {isSignUp ? <Signup handleSignUp={handleSignUp} isLoading={isSubmit} /> : <Login handleLogin={handleLogin} isLoading={isSubmit} />}
 
                 </div>
 
@@ -48,6 +81,10 @@ export default function AuthPage(props: Props) {
                         Sign up
                     </a>
                 </div>
+
+                <Modal show={isSuccess.value.length > 0} type={isSuccess.value} message={isSuccess.msg} onClose={() => setIsSuccess(initial)} />
+
+                <LoadingBackdrop />
 
             </div>
         </div>

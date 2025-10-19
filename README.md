@@ -40,3 +40,5 @@ and inspect data : npx prisma studio
 
 ##### 5
 authentication
+jwt and next auth are using.
+packages are bcrypt and jsonwebtoken

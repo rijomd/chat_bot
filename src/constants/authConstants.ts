@@ -1,6 +1,6 @@
 
-export const BASE_URL = "http://localhost:3000/api";
+export const BASE_API_URL = "http://localhost:3000/api";
 
-export const ACCESS_SECRET = "access_secret_key";
-export const REFRESH_SECRET = "refresh_secret_key"; 
-export const NEXT_AUTH_SECRET ="12345678";
+export const NEXT_AUTH_SECRET = "qwqeqexajxnajxnj!@!$%$^$^46464645";
+export const JWT_SECRET = "QWERT!@@!!!!!56655252525awfsfsfsfsgggsgsgsg@@@@!!***&&&&^";
+export const expiresToken = '1d';

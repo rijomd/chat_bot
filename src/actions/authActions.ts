@@ -1,10 +1,11 @@
-import { BASE_URL } from "@/constants/authConstants";
+import { BASE_API_URL } from "@/constants/authConstants";
+import { LoginCredentials } from "@/types/login";
 
 type LoginDataType = { email: string, password: string };
 
 export const signInActions = async (formData: LoginDataType) => {
     try {
-        const res = await fetch(`${BASE_URL}/user/signIn`, {
+        const res = await fetch(`${BASE_API_URL}/user/signIn`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
@@ -14,30 +15,38 @@ export const signInActions = async (formData: LoginDataType) => {
             throw new Error("Sign In failed");
         }
 
-        const data = await res.json();
-        console.log("✅ sign in success:", data);
     } catch (err) {
         console.error("❌ sign in error:", err);
     }
 }
 
-export const loginInActions = async (formData: LoginDataType) => {
+export const loginInActions = async (credentials: LoginCredentials) => {
     try {
-
-        const res = await fetch(`${BASE_URL}/user/login`, {
+        const res = await fetch(`${BASE_API_URL}/user/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
+            body: JSON.stringify({
+                email: credentials?.email,
+                password: credentials?.password,
+            }),
         });
 
-        if (!res.ok) {
-            throw new Error("Login failed");
+        const responseData = await res.json();
+
+        if (responseData.code === 200 && responseData.data?.user) {
+            const { user, token } = responseData.data;
+
+            return {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                accessToken: token,
+            };
         }
 
-        const data = await res.json();
-        console.log("✅ Login success:", data);
-        return data;
+        return null;
     } catch (err) {
         console.error("❌ Login error:", err);
+        return null;
     }
 }
