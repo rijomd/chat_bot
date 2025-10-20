@@ -22,6 +22,8 @@ export const signInActions = async (formData: LoginDataType) => {
 
 export const loginInActions = async (credentials: LoginCredentials) => {
     try {
+        console.log(`${BASE_API_URL}/user/login`, " path");
+
         const res = await fetch(`${BASE_API_URL}/user/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },

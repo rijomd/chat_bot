@@ -6,12 +6,3 @@ export const urlPaths = {
     SIGNUP: "/signup",
     DASHBOARD: "/",
 }
-
-// Specify which routes to protect
-export const config = {
-    matcher: [
-        "/profile/:path*",
-        urlPaths.LOGIN,
-        urlPaths.SIGNUP,
-    ],
-};

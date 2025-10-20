@@ -9,7 +9,11 @@ export const StatusCodes = {
 export const Messages = {
     VALIDATION_ERROR: "data validation error",
     SUCCESS: "Success",
-    UN_AUTHORIZED: "Authorization error"
+    UN_AUTHORIZED: "Authorization error",
+    NOT_FOUND: "Data not found",
+    FORBIDDEN: "Access denied",
+    SERVER_ERROR: "Internal server error",
+    PROTECTED_ROUTE: "This is a protected route"
 }
 
 export const Endpoints = {

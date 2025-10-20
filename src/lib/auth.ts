@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 import { loginInActions } from "@/actions/authActions";
 import { NEXT_AUTH_SECRET } from "@/constants/authConstants";
+import { urlPaths } from "@/constants/pathConstants";
 // or import GoogleProvider, GitHubProvider etc (for sso).
 
 export const authOptions: NextAuthOptions = {
@@ -51,7 +52,7 @@ export const authOptions: NextAuthOptions = {
         },
     },
     pages: {
-        signIn: "/login",
+        signIn: urlPaths.LOGIN,
     },
     secret: NEXT_AUTH_SECRET,
 };

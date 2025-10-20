@@ -1,21 +1,20 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-import { DEFAULT_PATH, urlPaths } from "@/constants/pathConstants";
 
 export default withAuth(
     function middleware(req) {
         const token = req.nextauth.token;
         const isAuth = !!token;
-        const isAuthPage = req.nextUrl.pathname.startsWith(urlPaths.LOGIN) ||
-            req.nextUrl.pathname.startsWith(urlPaths.SIGNUP);
+        const isAuthPage = req.nextUrl.pathname.startsWith("/login") ||
+            req.nextUrl.pathname.startsWith("/signup");
 
         if (isAuthPage && isAuth) {
-            return NextResponse.redirect(new URL(DEFAULT_PATH, req.url));
+            return NextResponse.redirect(new URL("/", req.url));
         }
 
         if (!isAuthPage && !isAuth) {
-            return NextResponse.redirect(new URL(urlPaths.LOGIN, req.url));
+            return NextResponse.redirect(new URL("/login", req.url));
         }
 
         return NextResponse.next();
@@ -27,7 +26,16 @@ export default withAuth(
             },
         },
         pages: {
-            signIn: urlPaths.LOGIN,
+            signIn: "/login",
         },
     }
 );
+
+// Specify which routes to protect
+export const config = {
+    matcher: [
+        "/profile/:path*",
+        "/login",
+        "/signup",
+    ],
+};

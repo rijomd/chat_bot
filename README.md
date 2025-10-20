@@ -42,3 +42,9 @@ and inspect data : npx prisma studio
 authentication
 jwt and next auth are using.
 packages are bcrypt and jsonwebtoken
+
+
+###### 6
+No need to pass token manually - session cookies handle it
+example for protected route :- getServerSession else no need for getServerSession()  
+needs literal string values - it can't use imported constants because Next.js parses this at build time before your code runs

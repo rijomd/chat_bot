@@ -43,12 +43,12 @@ export default function AuthPage() {
             setIsSubmit(false);
 
             if (res?.error) {
-                setIsSuccess({ msg: res?.error, value: modalPopupValues.error });
+                setIsSuccess({ msg: "Authentication error :- " + res?.error, value: modalPopupValues.error });
             }
 
             if (res?.ok) {
-                router.push(DEFAULT_PATH);
-                router.refresh(); // Refresh to update session
+                setIsSuccess({ msg: "Login successful", value: modalPopupValues.success });
+
             }
         } catch (error) {
             console.error("Login error:", error);
@@ -82,7 +82,16 @@ export default function AuthPage() {
                     </a>
                 </div>
 
-                <Modal show={isSuccess.value.length > 0} type={isSuccess.value} message={isSuccess.msg} onClose={() => setIsSuccess(initial)} />
+                <Modal show={isSuccess.value.length > 0}
+                    type={isSuccess.value}
+                    message={isSuccess.msg}
+                    onClose={() => {
+                        setIsSuccess(initial);
+                        if (isSuccess.value !== modalPopupValues.success) return;
+                        router.push(DEFAULT_PATH);
+                        router.refresh(); // Refresh to update session
+                    }}
+                />
 
                 <LoadingBackdrop />
 
