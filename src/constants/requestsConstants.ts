@@ -21,7 +21,7 @@ export const Endpoints = {
     SIGNUP: "/api/user/signup"
 }
 
-export const SESSION_CONSTANTS = {
+export const SESSION_STATUS = {
     LOADING: "loading",
     AUTHENTICATED: "authenticated",
     UN_AUTHENTICATED: "unauthenticated"

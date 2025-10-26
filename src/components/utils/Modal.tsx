@@ -44,7 +44,7 @@ export const Modal: React.FC<ModalProps> = ({ show, type, title, message, onClos
                 <div className="flex flex-col items-center space-y-3">
                     {icon}
                     <h2 className="text-xl font-semibold text-gray-800">{modalTitle}</h2>
-                    <p className="text-gray-700">{message}</p>
+                    <p className="text-gray-700 text-xs m-0">{message}</p>
                     <button
                         onClick={onClose}
                         className={`mt-4 px-4 py-2 bg-white text-black rounded-lg hover:bg-${bg} transition-all cursor-pointer`}

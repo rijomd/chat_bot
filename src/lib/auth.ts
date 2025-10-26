@@ -2,7 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import { loginInActions } from "@/actions/authActions";
-import { NEXT_AUTH_SECRET } from "@/constants/authConstants";
+import { NEXT_AUTH_SECRET, TOKEN_EXPIRY_DAYS } from "@/constants/authConstants";
 import { urlPaths } from "@/constants/pathConstants";
 // or import GoogleProvider, GitHubProvider etc (for sso).
 
@@ -22,31 +22,33 @@ export const authOptions: NextAuthOptions = {
     ],
     session: {
         strategy: "jwt",
-        maxAge: 1 * 24 * 60 * 60, // 1 days
+        maxAge: TOKEN_EXPIRY_DAYS * 24 * 60 * 60,
     },
     callbacks: {
         async jwt({ token, user }) {
             // Initial sign in
             if (user) {
+                const expiryTime = Math.floor(Date.now() / 1000) + (TOKEN_EXPIRY_DAYS * 24 * 60 * 60);
+
                 token.accessToken = (user as any).accessToken;
                 token.id = user.id;
-                // Set expiry time
-                (token as any).exp = Math.floor(Date.now() / 1000) + (1 * 24 * 60 * 60);
+                (token as any).exp = expiryTime; // Set expiry time
+                (token as any).iat = Math.floor(Date.now() / 1000); // Issued at time
             }
             // Check if token is expired
+            const currentTime = Math.floor(Date.now() / 1000);
             const exp = typeof (token as any).exp === "number" ? (token as any).exp : Number((token as any).exp || 0);
-            if (exp && (Date.now() / 1000) > exp) {
-                (token as any).error = "TokenExpired";
+            if (exp && currentTime > exp) {
+                return {}; // Return empty token to force logout
             }
             return token;
         },
         async session({ session, token }) {
-            // Add custom fields to session
             if (token) {
                 (session.user as any).id = token.id;
                 (session as any).accessToken = token.accessToken;
-                const exp = typeof token.exp === "number" ? token.exp : Number((token as any).exp);
-                (session as any).expires = new Date(exp * 1000).toISOString();
+                (session as any).expiresAt = token.exp; // expiry time
+                (session as any).issuedAt = token.iat; // issued at time
             }
             return session;
         },
