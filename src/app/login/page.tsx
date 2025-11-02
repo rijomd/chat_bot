@@ -11,7 +11,7 @@ import { LoginDataType, SignInDataType } from '@/types/login';
 import { Modal } from '@/components/utils/Modal';
 import { ModalType } from '@/types/modal';
 import { DEFAULT_PATH } from '@/constants/pathConstants';
-import { useAuth, useLoadingBackdrop } from '@/lib/hook';
+import { useAuth, useCredentialStore, useLoadingBackdrop } from '@/lib/hook';
 
 const modalPopupValues: Record<ModalType, ModalType> = {
     error: "error",
@@ -26,7 +26,9 @@ export default function AuthPage() {
     const [isSignUp, setIsSignUp] = useState(false);
     const [isSuccess, setIsSuccess] = useState<{ msg: string, value: ModalType }>(initial);
     const [isSubmit, setIsSubmit] = useState(false);
+
     const router = useRouter();
+    const { saveCredentials } = useCredentialStore();
 
     const { isLoading } = useAuth(false); // false = don't require auth
     const { LoadingBackdrop } = useLoadingBackdrop(isLoading);
@@ -47,6 +49,7 @@ export default function AuthPage() {
             }
 
             if (res?.ok) {
+                saveCredentials(e.email, e.password, e.rememberMe);
                 setIsSuccess({ msg: "Login successful", value: modalPopupValues.success });
 
             }

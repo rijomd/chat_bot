@@ -25,5 +25,6 @@ export const SESSION_STATUS = {
     LOADING: "loading",
     AUTHENTICATED: "authenticated",
     UN_AUTHENTICATED: "unauthenticated"
-
 }
+
+export const STORAGE_KEY = "app_remember_me";

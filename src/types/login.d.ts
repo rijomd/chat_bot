@@ -1,6 +1,5 @@
 
-export type LoginDataType =
-    { email: string, password: string };
+export type LoginDataType = { email: string, password: string, rememberMe: boolean };
 
 export type SignInDataType =
     { email: string, password: string, name: string };

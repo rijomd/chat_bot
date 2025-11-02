@@ -1,17 +1,39 @@
 "use client";
 
-import { signOut } from "next-auth/react";
-import { useTokenExpiry } from "@/lib/hook";
-import { urlPaths } from "@/constants/pathConstants";
+import { useAutoTokenExpiry } from "@/lib/hook";
 
 export function TokenExpiry() {
-    const { showExpiryWarning, timeLeft, isExpired, dismissWarning } = useTokenExpiry();
+    const {
+        showExpiryWarning,
+        timeLeft,
+        isExpired,
+        isExtending,
+        dismissWarning,
+        manualExtend,
+        rememberMe
+    } = useAutoTokenExpiry();
 
     if (!showExpiryWarning) {
         return null;
     }
 
-    if (isExpired) {
+    if (isExpired && isExtending) {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="text-center">
+                            <h2 className="text-xl font-bold text-blue-600 mb-2">Extending Session</h2>
+                            <p className="text-gray-600">Please wait while we refresh your session...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (isExpired && !rememberMe) {
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
@@ -26,16 +48,8 @@ export function TokenExpiry() {
                         </div>
                     </div>
                     <p className="text-gray-700 mb-6">
-                        Your session has expired. You will be logged out automatically.
+                        Your session has expired. Redirecting to login...
                     </p>
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => signOut({ callbackUrl: urlPaths.LOGIN })}
-                            className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-                        >
-                            Logout Now
-                        </button>
-                    </div>
                 </div>
             </div>
         );
@@ -56,7 +70,10 @@ export function TokenExpiry() {
                     </div>
                 </div>
                 <p className="text-gray-700 mb-6">
-                    Your session will expire soon. Please save your work or extend your session.
+                    {rememberMe
+                        ? "Your session will expire soon. Click to extend automatically."
+                        : "Your session will expire soon."
+                    }
                 </p>
                 <div className="flex gap-3">
                     <button
@@ -65,12 +82,15 @@ export function TokenExpiry() {
                     >
                         Dismiss
                     </button>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                    >
-                        Extend Session
-                    </button>
+                    {rememberMe && (
+                        <button
+                            onClick={manualExtend}
+                            disabled={isExtending}
+                            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                        >
+                            {isExtending ? "Extending..." : "Extend Now"}
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
