@@ -14,6 +14,7 @@ export default function Home() {
         <button onClick={() => signOut({ callbackUrl: "/login" })}>Logout</button>
       </div>
       <LoadingBackdrop />
+
     </div>
   );
 }

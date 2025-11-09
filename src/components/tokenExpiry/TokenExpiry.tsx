@@ -19,7 +19,7 @@ export function TokenExpiry() {
 
     if (isExpired && isExtending) {
         return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-blue-50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
                     <div className="flex flex-col items-center gap-4">
                         <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -35,7 +35,7 @@ export function TokenExpiry() {
 
     if (isExpired && !rememberMe) {
         return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-blue-50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -56,7 +56,7 @@ export function TokenExpiry() {
     }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-blue-50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 ">
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
                 <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
@@ -78,7 +78,7 @@ export function TokenExpiry() {
                 <div className="flex gap-3">
                     <button
                         onClick={dismissWarning}
-                        className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition"
+                        className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition cursor-pointer"
                     >
                         Dismiss
                     </button>
