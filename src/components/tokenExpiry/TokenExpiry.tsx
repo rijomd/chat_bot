@@ -17,7 +17,8 @@ export function TokenExpiry() {
         return null;
     }
 
-    if (isExpired && isExtending) {
+    // Show extending loader
+    if (isExtending) {
         return (
             <div className="fixed inset-0 bg-blue-50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
@@ -33,9 +34,10 @@ export function TokenExpiry() {
         );
     }
 
-    if (isExpired && !rememberMe) {
+    // Show expired message (will auto-redirect)
+    if (isExpired) {
         return (
-            <div className="fixed inset-0 bg-blue-50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-red-50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -48,16 +50,17 @@ export function TokenExpiry() {
                         </div>
                     </div>
                     <p className="text-gray-700 mb-6">
-                        Your session has expired. Redirecting to login...
+                        Your session has expired. {rememberMe ? "Attempting to extend..." : "Redirecting to login..."}
                     </p>
                 </div>
             </div>
         );
     }
 
+    // Show warning with extend option
     return (
-        <div className="fixed inset-0 bg-blue-50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 ">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+        <div className="fixed inset-0 bg-yellow-50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border-2 border-yellow-200">
                 <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
                         <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,20 +68,20 @@ export function TokenExpiry() {
                         </svg>
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-yellow-600">Session Expiring Soon</h2>
-                        <p className="text-sm text-gray-600">Time remaining: {timeLeft}</p>
+                        <h2 className="text-xl font-bold text-yellow-700">Session Expiring Soon</h2>
+                        <p className="text-sm text-gray-600">Time remaining: <span className="font-semibold text-yellow-600">{timeLeft}</span></p>
                     </div>
                 </div>
                 <p className="text-gray-700 mb-6">
                     {rememberMe
-                        ? "Your session will expire soon. Click to extend automatically."
-                        : "Your session will expire soon."
+                        ? "Your session will expire soon. Click 'Extend Now' to continue for another day, or dismiss to let it expire naturally."
+                        : "Your session will expire soon. You will be logged out automatically."
                     }
                 </p>
                 <div className="flex gap-3">
                     <button
                         onClick={dismissWarning}
-                        className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition cursor-pointer"
+                        className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium"
                     >
                         Dismiss
                     </button>
@@ -86,7 +89,7 @@ export function TokenExpiry() {
                         <button
                             onClick={manualExtend}
                             disabled={isExtending}
-                            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                            className="flex-1 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                         >
                             {isExtending ? "Extending..." : "Extend Now"}
                         </button>

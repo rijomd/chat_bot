@@ -28,3 +28,5 @@ export const SESSION_STATUS = {
 }
 
 export const STORAGE_KEY = "app_remember_me";
+export const TAB_CLOSING_KEY = "tab_closing";
+export const TAB_OPEN_KEY = "tab_open";

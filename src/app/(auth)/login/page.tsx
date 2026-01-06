@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from 'react'
-import { signIn } from "next-auth/react";
+import React, { useState, useEffect } from 'react'
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import { Login } from '@/components/auth/Login'
@@ -11,7 +11,8 @@ import { LoginDataType, SignInDataType } from '@/types/login';
 import { Modal } from '@/components/utils/Modal';
 import { ModalType } from '@/types/modal';
 import { DEFAULT_PATH } from '@/constants/pathConstants';
-import { useAuth, useCredentialStore, useLoadingBackdrop } from '@/lib/hook';
+import { useCredentialStore, useLoadingBackdrop } from '@/lib/hook';
+import { SESSION_STATUS } from '@/constants/requestsConstants';
 
 const modalPopupValues: Record<ModalType, ModalType> = {
     error: "error",
@@ -29,9 +30,16 @@ export default function AuthPage() {
 
     const router = useRouter();
     const { saveCredentials } = useCredentialStore();
+    const { status } = useSession();
 
-    const { isLoading } = useAuth(false); // false = don't require auth
-    const { LoadingBackdrop } = useLoadingBackdrop(isLoading);
+    const { LoadingBackdrop } = useLoadingBackdrop(status === SESSION_STATUS.LOADING);
+
+    // Redirect authenticated users to dashboard
+    useEffect(() => {
+        if (status === SESSION_STATUS.AUTHENTICATED) {
+            router.push(DEFAULT_PATH);
+        }
+    }, [status, router]);
 
     const handleLogin = async (e: LoginDataType) => {
         try {
@@ -69,10 +77,15 @@ export default function AuthPage() {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-white to-blue-300 p-4 animate-gradient-move">
-            <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6">
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
                 <h1 className="text-3xl font-extrabold text-center bg-gradient-to-r from-blue-100 via-blue-200 to-indigo-600 bg-clip-text text-transparent animate-gradient-move">
-                    CHAT Box
+                    cHAT Box
                 </h1>
+
+                <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded text-sm text-center mt-4 mb-4 hidden lg:block">
+                    Demo: email: <strong>a@mail.com</strong>, password: <strong>password</strong>
+                </div>
+
                 <div>
                     {isSignUp ? <Signup handleSignUp={handleSignUp} isLoading={isSubmit} /> : <Login handleLogin={handleLogin} isLoading={isSubmit} />}
 
@@ -81,7 +94,7 @@ export default function AuthPage() {
                 <div className="mt-4 text-center text-sm">
                     <span className="text-gray-600">Don’t have an account? </span>
                     <a onClick={changeContent} className="text-blue-600 hover:underline cursor-pointer">
-                        Sign up
+                        {isSignUp ? "Log in" : "Sign In"}
                     </a>
                 </div>
 
@@ -90,9 +103,6 @@ export default function AuthPage() {
                     message={isSuccess.msg}
                     onClose={() => {
                         setIsSuccess(initial);
-                        if (isSuccess.value !== modalPopupValues.success) return;
-                        router.push(DEFAULT_PATH);
-                        router.refresh(); // Refresh to update session
                     }}
                 />
 

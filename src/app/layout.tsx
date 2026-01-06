@@ -30,7 +30,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           <TokenExpiry />
-          {children}
+          <div className="min-h-screen bg-gray-50">
+            {children}
+          </div>
         </Providers>
       </body>
     </html>

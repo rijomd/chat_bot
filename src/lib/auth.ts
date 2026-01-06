@@ -24,6 +24,17 @@ export const authOptions: NextAuthOptions = {
         strategy: "jwt",
         maxAge: TOKEN_EXPIRY_DAYS * 24 * 60 * 60,
     },
+    cookies: {
+        sessionToken: {
+            name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+            options: {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+            },
+        },
+    },
     callbacks: {
         async jwt({ token, user }) {
             // Initial sign in
@@ -53,8 +64,20 @@ export const authOptions: NextAuthOptions = {
             return session;
         },
     },
+    events: {
+        async signOut({ token }) {
+            //             signOut() called
+            // session destroyed
+            // events.signOut runs (optional hook)
+
+            console.log("🔴 User signed out");
+            // Optional: Add backend cleanup here if needed
+            // Example: await fetch('/api/user/logout', { method: 'POST' })
+        },
+    },
     pages: {
         signIn: urlPaths.LOGIN,
     },
     secret: NEXT_AUTH_SECRET,
+    debug: process.env.NODE_ENV === "development",
 };

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { SESSION_STATUS, STORAGE_KEY } from "@/constants/requestsConstants";
+import { SESSION_STATUS, STORAGE_KEY, TAB_CLOSING_KEY } from "@/constants/requestsConstants";
 import { urlPaths } from "@/constants/pathConstants";
 import { TOKEN_EXPIRED_CHECK_INTERVAL, TOKEN_EXPIRED_POPUP_TIMEOUT, TOKEN_EXPIRED_WARN_CHECK } from "@/constants/authConstants";
 import { StoredCredentials } from "@/types/stored-creds";
@@ -40,8 +40,8 @@ export const useLoadingBackdrop = (isLoading: boolean) => {
 
 // check if token is expired
 export function useAutoTokenExpiry() {
-    const { data: session, status } = useSession();
-    const { getStoredPassword, storedEmail, rememberMe } = useCredentialStore();
+    const { data: session, status, update } = useSession();
+    const { getStoredPassword, storedEmail, rememberMe, clearCredentials } = useCredentialStore();
 
     const [showExpiryWarning, setShowExpiryWarning] = useState(false);
     const [timeLeft, setTimeLeft] = useState<string>("");
@@ -49,6 +49,45 @@ export function useAutoTokenExpiry() {
     const [isExtending, setIsExtending] = useState(false);
     const [isDismissed, setIsDismissed] = useState(false);
 
+    // Handle browser/tab close - logout if rememberMe is false
+    useEffect(() => {
+        if (status !== SESSION_STATUS.AUTHENTICATED) {
+            return;
+        }
+
+        // Set flag in sessionStorage to indicate tab is closing
+        const handleBeforeUnload = async (e: BeforeUnloadEvent) => {
+            if (!rememberMe) {
+                sessionStorage.setItem(TAB_CLOSING_KEY, 'true');
+            }
+        };
+
+        // Tab is being hidden/closed
+        const handleVisibilityChange = async () => {
+            if (document.visibilityState === 'hidden' && !rememberMe) {
+                sessionStorage.setItem(TAB_CLOSING_KEY, 'true');
+                await signOut({ redirect: false });
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        // Check on mount if previous session should be cleared
+        const wasClosing = sessionStorage.getItem(TAB_CLOSING_KEY);
+        if (wasClosing === 'true' && !rememberMe) {
+            sessionStorage.removeItem(TAB_CLOSING_KEY);
+            signOut({ callbackUrl: urlPaths.LOGIN });
+        }
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [status, rememberMe]);
+
+
+    // Token expiry monitoring
     useEffect(() => {
         if (status !== SESSION_STATUS.AUTHENTICATED || !session) {
             return;
@@ -65,7 +104,7 @@ export function useAutoTokenExpiry() {
             const timeRemaining = expiresAt - currentTime;
 
             if (timeRemaining <= 0) {
-                console.log("🔴 Token expired");
+                console.log("🔴 Token expired - forcing logout");
                 setIsExpired(true);
                 setShowExpiryWarning(true);
                 setIsDismissed(false);
@@ -74,9 +113,10 @@ export function useAutoTokenExpiry() {
                 if (rememberMe && storedEmail) {
                     handleAutoExtend();
                 } else {
-                    // No auto-login, show expiry message
-                    setTimeout(() => {
-                        window.location.href = urlPaths.LOGIN;
+                    // No auto-login, force logout
+                    console.log("⏳ Logging out user (no remember me or no stored email)");
+                    setTimeout(async () => {
+                        await signOut({ callbackUrl: urlPaths.LOGIN });
                     }, TOKEN_EXPIRED_POPUP_TIMEOUT);
                 }
                 return;
@@ -85,6 +125,10 @@ export function useAutoTokenExpiry() {
             const warningThreshold = TOKEN_EXPIRED_WARN_CHECK;
             if (timeRemaining <= warningThreshold && !isDismissed) {
                 setShowExpiryWarning(true);
+            } else if (timeRemaining > warningThreshold) {
+                // Reset warning if time is extended
+                setShowExpiryWarning(false);
+                setIsDismissed(false);
             }
 
             // Format time
@@ -108,7 +152,7 @@ export function useAutoTokenExpiry() {
         const interval = setInterval(checkExpiry, TOKEN_EXPIRED_CHECK_INTERVAL);
 
         return () => clearInterval(interval);
-    }, [session, status, showExpiryWarning, rememberMe, storedEmail, isDismissed]);
+    }, [session, status, rememberMe, storedEmail, isDismissed]);
 
     const handleAutoExtend = async () => {
         if (isExtending) return;
@@ -122,8 +166,8 @@ export function useAutoTokenExpiry() {
             if (!password || !storedEmail) {
                 console.error("No stored credentials found");
                 setIsExtending(false);
-                setTimeout(() => {
-                    window.location.href = urlPaths.LOGIN;
+                setTimeout(async () => {
+                    await signOut({ callbackUrl: urlPaths.LOGIN });
                 }, TOKEN_EXPIRED_POPUP_TIMEOUT);
                 return;
             }
@@ -140,25 +184,33 @@ export function useAutoTokenExpiry() {
                 setShowExpiryWarning(false);
                 setIsExpired(false);
                 setIsDismissed(false);
-                // Reload to get fresh session
+                setIsExtending(false);
+
+                // Trigger session update to get new token
+                await update();
+
+                // Optional: Reload to ensure fresh state
                 setTimeout(() => {
                     window.location.reload();
                 }, 500);
+
             } else {
                 console.error("❌ Auto-extend failed:", result?.error);
-                setTimeout(() => {
-                    window.location.href = urlPaths.LOGIN;
+                setIsExtending(false);
+                clearCredentials(); // Clear invalid credentials
+                console.log("⏳ Auto-extend failed - logging out user");
+                setTimeout(async () => {
+                    await signOut({ callbackUrl: urlPaths.LOGIN });
                 }, TOKEN_EXPIRED_POPUP_TIMEOUT);
             }
 
         } catch (error) {
             console.error("Auto-extend error:", error);
-            setTimeout(() => {
-                window.location.href = urlPaths.LOGIN;
-            }, TOKEN_EXPIRED_POPUP_TIMEOUT);
-
-        } finally {
             setIsExtending(false);
+            console.log("⏳ Auto-extend threw error - logging out user");
+            setTimeout(async () => {
+                await signOut({ callbackUrl: urlPaths.LOGIN });
+            }, TOKEN_EXPIRED_POPUP_TIMEOUT);
         }
     };
 
@@ -181,6 +233,7 @@ export function useAutoTokenExpiry() {
         rememberMe,
         expiresAt: (session as any)?.expiresAt,
     };
+
 }
 
 
