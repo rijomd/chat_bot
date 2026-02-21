@@ -8,8 +8,8 @@ type Props = {
 
 export const Header: React.FC<Props> = ({ appName = "Chat Bot" }) => {
     return (
-        <header className="fixed top-0 left-0 w-full h-14 bg-white border-b shadow-sm flex items-center justify-between px-4 z-50">
-            <h1 className="text-lg font-semibold text-gray-800">
+        <header className="fixed top-0 left-0 w-full h-14 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200 shadow-sm flex items-center justify-between px-4 z-50">
+            <h1 className="text-lg font-semibold text-green-800">
                 {appName}
             </h1>
 
@@ -18,7 +18,7 @@ export const Header: React.FC<Props> = ({ appName = "Chat Bot" }) => {
                     await signOut({ callbackUrl: urlPaths.LOGIN });
 
                 }}
-                className="flex items-center gap-1 text-red-600 hover:text-red-700"
+                className="flex items-center gap-1 text-green-600 hover:text-green-700"
             >
                 <span>Log Out</span>
                 <svg

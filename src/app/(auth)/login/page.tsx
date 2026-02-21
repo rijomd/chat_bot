@@ -76,13 +76,13 @@ export default function AuthPage() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-white to-blue-300 p-4 animate-gradient-move">
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-white to-green-300 p-4 animate-gradient-move">
             <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
-                <h1 className="text-3xl font-extrabold text-center bg-gradient-to-r from-blue-100 via-blue-200 to-indigo-600 bg-clip-text text-transparent animate-gradient-move">
+                <h1 className="text-3xl font-extrabold text-center bg-gradient-to-r from-green-100 via-green-200 to-emerald-600 bg-clip-text text-transparent animate-gradient-move">
                     cHAT Box
                 </h1>
 
-                <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded text-sm text-center mt-4 mb-4 hidden lg:block">
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded text-sm text-center mt-4 mb-4 hidden lg:block">
                     Demo: email: <strong>a@mail.com</strong>, password: <strong>password</strong>
                 </div>
 
@@ -93,7 +93,7 @@ export default function AuthPage() {
 
                 <div className="mt-4 text-center text-sm">
                     <span className="text-gray-600">Don’t have an account? </span>
-                    <a onClick={changeContent} className="text-blue-600 hover:underline cursor-pointer">
+                    <a onClick={changeContent} className="text-green-600 hover:underline cursor-pointer">
                         {isSignUp ? "Log in" : "Sign In"}
                     </a>
                 </div>

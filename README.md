@@ -51,7 +51,7 @@ needs literal string values - it can't use imported constants because Next.js pa
 
 
 ###### 7
-state management :- zustand and react hooks.
+state management :- react hooks.
 
 
 ###### 8
@@ -66,17 +66,14 @@ NEXTAUTH_SECRET = "    "
 ##### 9
 working :- 
     1.Remember Me" is checked
-      checks token expiry every 10 seconds.
-      5 minutes remain, warning modal appears
-      User can either dismiss or extend the session
+      checks token expiry every no.of (defined) seconds.
+      5(defined) minutes remain, warning modal appears.
+      User can either dismiss or extend the session.
     2.Remember Me" is unchecked
-     immediate logout
+      immediate logout
 
-
-eturn {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            accessToken: generateAccessToken(user.id), // Generate your JWT token here
-        };
-
+###### 10
+ auth.ts => signout for   
+             signOut() called
+             session destroyed
+             events.signOut runs (optional hook) :- Optional: Add backend cleanup here if needed

@@ -74,12 +74,16 @@ export function useAutoTokenExpiry() {
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         // Check on mount if previous session should be cleared
-        const wasClosing = sessionStorage.getItem(TAB_CLOSING_KEY);
-        if (wasClosing === 'true' && !rememberMe) {
-            sessionStorage.removeItem(TAB_CLOSING_KEY);
-            signOut({ callbackUrl: urlPaths.LOGIN });
-        }
+        const checkPreviousTabClose = async () => {
+            const wasClosing = sessionStorage.getItem(TAB_CLOSING_KEY);
 
+            if (wasClosing === "true" && !rememberMe) {
+                sessionStorage.removeItem(TAB_CLOSING_KEY);
+                console.log("logout on previous tab close");
+                await signOut({ callbackUrl: urlPaths.LOGIN });
+            }
+        }
+        checkPreviousTabClose();
         return () => {
             window.removeEventListener('beforeunload', handleBeforeUnload);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -96,12 +100,22 @@ export function useAutoTokenExpiry() {
         const expiresAt = (session as any).expiresAt;
 
         if (!expiresAt) {
+            console.log("⚠️ expiresAt is not set in session:", { session });
             return;
         }
+
+        console.log("✅ Token expiry monitoring started", {
+            expiresAt,
+            expiresAtDate: new Date(expiresAt * 1000),
+            currentTime: Math.floor(Date.now() / 1000),
+            rememberMe
+        });
 
         const checkExpiry = () => {
             const currentTime = Math.floor(Date.now() / 1000);
             const timeRemaining = expiresAt - currentTime;
+
+            console.log("🔍 Expiry check:", { timeRemaining, expiresAt, currentTime });
 
             if (timeRemaining <= 0) {
                 console.log("🔴 Token expired - forcing logout");
@@ -113,17 +127,16 @@ export function useAutoTokenExpiry() {
                 if (rememberMe && storedEmail) {
                     handleAutoExtend();
                 } else {
-                    // No auto-login, force logout
-                    console.log("⏳ Logging out user (no remember me or no stored email)");
-                    setTimeout(async () => {
-                        await signOut({ callbackUrl: urlPaths.LOGIN });
-                    }, TOKEN_EXPIRED_POPUP_TIMEOUT);
+                    // No auto-login, force immediate logout (Remember Me is unchecked)
+                    console.log("⏳ Immediate logout - Remember Me is unchecked");
+                    signOut({ callbackUrl: urlPaths.LOGIN });
                 }
                 return;
             }
 
             const warningThreshold = TOKEN_EXPIRED_WARN_CHECK;
-            if (timeRemaining <= warningThreshold && !isDismissed) {
+            if (timeRemaining <= warningThreshold && !isDismissed && timeRemaining > 0) {
+                console.log("⚠️ Warning threshold reached:", { timeRemaining, threshold: warningThreshold });
                 setShowExpiryWarning(true);
             } else if (timeRemaining > warningThreshold) {
                 // Reset warning if time is extended
@@ -164,9 +177,9 @@ export function useAutoTokenExpiry() {
             const password = getStoredPassword();
 
             if (!password || !storedEmail) {
-                console.error("No stored credentials found");
                 setIsExtending(false);
                 setTimeout(async () => {
+                    console.error("No stored credentials found");
                     await signOut({ callbackUrl: urlPaths.LOGIN });
                 }, TOKEN_EXPIRED_POPUP_TIMEOUT);
                 return;
@@ -198,17 +211,16 @@ export function useAutoTokenExpiry() {
                 console.error("❌ Auto-extend failed:", result?.error);
                 setIsExtending(false);
                 clearCredentials(); // Clear invalid credentials
-                console.log("⏳ Auto-extend failed - logging out user");
                 setTimeout(async () => {
+                    console.log("⏳ Auto-extend failed - logging out user");
                     await signOut({ callbackUrl: urlPaths.LOGIN });
                 }, TOKEN_EXPIRED_POPUP_TIMEOUT);
             }
 
         } catch (error) {
-            console.error("Auto-extend error:", error);
             setIsExtending(false);
-            console.log("⏳ Auto-extend threw error - logging out user");
             setTimeout(async () => {
+                console.log("⏳ Auto-extend threw error - logging out user");
                 await signOut({ callbackUrl: urlPaths.LOGIN });
             }, TOKEN_EXPIRED_POPUP_TIMEOUT);
         }

@@ -20,12 +20,12 @@ export function TokenExpiry() {
     // Show extending loader
     if (isExtending) {
         return (
-            <div className="fixed inset-0 bg-blue-50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-green-50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
                     <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
                         <div className="text-center">
-                            <h2 className="text-xl font-bold text-blue-600 mb-2">Extending Session</h2>
+                            <h2 className="text-xl font-bold text-green-600 mb-2">Extending Session</h2>
                             <p className="text-gray-600">Please wait while we refresh your session...</p>
                         </div>
                     </div>
@@ -89,7 +89,7 @@ export function TokenExpiry() {
                         <button
                             onClick={manualExtend}
                             disabled={isExtending}
-                            className="flex-1 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                            className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                         >
                             {isExtending ? "Extending..." : "Extend Now"}
                         </button>

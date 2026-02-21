@@ -66,12 +66,7 @@ export const authOptions: NextAuthOptions = {
     },
     events: {
         async signOut({ token }) {
-            //             signOut() called
-            // session destroyed
-            // events.signOut runs (optional hook)
-
             console.log("🔴 User signed out");
-            // Optional: Add backend cleanup here if needed
             // Example: await fetch('/api/user/logout', { method: 'POST' })
         },
     },

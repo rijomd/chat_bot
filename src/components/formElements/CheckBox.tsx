@@ -23,7 +23,7 @@ export const CheckBox: React.FC<BaseCheckboxProps> = ({
                 id={id || (label + "_checkbox").toLowerCase()}
                 checked={checked}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
             />
             {label && (
                 <label htmlFor={id} className="ml-2 block text-sm text-gray-700">
