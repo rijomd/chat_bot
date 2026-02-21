@@ -7,10 +7,73 @@ datasource db {
   url      = env("DB_SUPABASE_URL")
 }
 
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  AUDIO
+  VIDEO
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
+
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  password String
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String
   createdAt DateTime @default(now())
+
+  // back-relations for chat
+  conversations ConversationParticipant[]
+  sentMessages  Message[]
+
+  @@map("users")
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants ConversationParticipant[] // relation to ConversationParticipant one to many
+  messages     Message[] // relation to Message one to many
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String    @id @default(cuid())
+  conversationId String
+  userId         Int
+  joinedAt       DateTime  @default(now())
+  lastReadAt     DateTime?
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade) // relation to Conversation many to one
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade) // relation to User many to one
+
+  @@unique([conversationId, userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String        @id @default(cuid())
+  conversationId String
+  senderId       Int
+  content        String        @db.Text
+  type           MessageType   @default(TEXT)
+  status         MessageStatus @default(SENT)
+  editedAt       DateTime?
+  deletedAt      DateTime? // soft delete
+  createdAt      DateTime      @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade) // relation to Conversation many to one
+  sender       User         @relation(fields: [senderId], references: [id]) // relation to User many to one
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
 }

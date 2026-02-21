@@ -41,7 +41,8 @@ export const POST = async (req: Request) => {
 
         return response({ data: user.name, message: "user created successfully" });
     } catch (error) {
-        return response({ data: null, message: "something wrong" });
+        console.log("❌ sign in error:", error);
+        return response({ data: null, message: "something wrong", code: 500 });
     }
 
 }

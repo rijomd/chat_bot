@@ -1,7 +1,7 @@
 import { BASE_API_URL } from "@/constants/authConstants";
 import { LoginCredentials } from "@/types/login";
 
-type LoginDataType = { email: string, password: string };
+type LoginDataType = { email: string, password: string, name: string };
 
 export const signInActions = async (formData: LoginDataType) => {
     try {
@@ -11,12 +11,30 @@ export const signInActions = async (formData: LoginDataType) => {
             body: JSON.stringify(formData),
         });
 
+        const data = await res.json();
+
         if (!res.ok) {
-            throw new Error("Sign In failed");
+            return {
+                success: false,
+                message: data.message || "Sign up failed",
+                code: data.code || 500
+            };
         }
 
+        return {
+            success: true,
+            message: data.message || "User created successfully",
+            code: data.code || 200,
+            data: data.data
+        };
+
     } catch (err) {
-        console.error("❌ sign in error:", err);
+        console.error("❌ sign up error:", err);
+        return {
+            success: false,
+            message: "Network error. Please try again.",
+            code: 500
+        };
     }
 }
 

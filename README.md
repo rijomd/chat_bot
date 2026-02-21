@@ -1,6 +1,16 @@
 ## Getting Started
 
+## schema.prisma  
+ edit this file manually whenever you want to add a table or a field.
+
+## migration.sql
+generated automatically by Prisma inside the prisma/migrations folder when you run npx prisma migrate dev
+
 ##### 1
+npm install
+npm run db:migrate
+npm run db:seed
+
 
 First, run the development server:
 
@@ -8,6 +18,7 @@ npm run dev
 yarn dev
 pnpm dev
 bun dev
+
 
 ##### 2  
 
@@ -21,13 +32,16 @@ npx prisma generate
 
 ##### 3
 
-prisma folder contains schema.prisma file and model declarations.
+prisma folder contains schema.prisma file and model declarations. 
 .env add db url
 
 ##### 4
 
+prisma client regenerate 
+npx prisma generate
+
 migration changes initially:-
-npx prisma migrate dev --name init (migration folder under prisma folder)
+npx prisma migrate dev --name init (migration folder under prisma folder) (eg :- npx prisma migrate dev --name migrations)
 
 Any schema changes:-
 prisma db push 
@@ -35,8 +49,15 @@ prisma db push
 for seed or data push :-
 seed file under prisma folder.
 add this on package file.
-npx prisma db seed
-and inspect data : npx prisma studio.
+
+npm run db:migrate
+npm run db:seed
+for view :- npm run db:studio
+
+
+for clear cache
+Remove-Item -Recurse -Force node_modules\.prisma
+then run migration
 
 ##### 5
 authentication

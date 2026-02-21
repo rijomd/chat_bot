@@ -67,8 +67,26 @@ export default function AuthPage() {
         }
     }
 
-    const handleSignUp = (e: SignInDataType) => {
-        signInActions(e);
+    const handleSignUp = async (e: SignInDataType) => {
+        try {
+            setIsSubmit(true);
+            const result = await signInActions(e);
+            setIsSubmit(false);
+
+            if (result.success) {
+                setIsSuccess({ msg: result.message, value: modalPopupValues.success });
+                // Clear form and switch back to login after success
+                setTimeout(() => {
+                    setIsSignUp(false);
+                }, 1500);
+            } else {
+                setIsSuccess({ msg: result.message, value: modalPopupValues.error });
+            }
+        } catch (error) {
+            setIsSubmit(false);
+            console.error("Sign up error:", error);
+            setIsSuccess({ msg: "An error occurred during sign up", value: modalPopupValues.error });
+        }
     }
 
     const changeContent = () => {
