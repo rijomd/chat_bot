@@ -7,116 +7,112 @@ async function main() {
     console.log("🌱 Seeding database...");
 
     // Delete existing data (for clean seed)
-    console.log("🗑️  Clearing old data...");
-    await prisma.message.deleteMany({});
-    await prisma.conversationParticipant.deleteMany({});
-    await prisma.conversation.deleteMany({});
-    await prisma.user.deleteMany({});
+    // console.log("🗑️  Clearing old data...");
+    // await prisma.message.deleteMany({});
+    // await prisma.conversationParticipant.deleteMany({});
+    // await prisma.conversation.deleteMany({});
+    // await prisma.user.deleteMany({});
 
     // Create users with hashed passwords
     console.log("👥 Creating users...");
     const saltRounds = 10;
 
-    const user1 = await prisma.user.create({
-        data: {
-            email: "alice@mail.com",
-            name: "Alice",
-            password: await bcrypt.hash("password", saltRounds),
-        },
+    const userCount = 5;
+
+    // 2. Map through to create the data objects
+    // Note: We use Promise.all because bcrypt.hash is async
+    const usersData = await Promise.all(
+        Array.from({ length: userCount }).map(async (_, i) => {
+            const hashedPassword = await bcrypt.hash(`password${i}`, saltRounds);
+            return {
+                email: `test${i}@gmail.com`,
+                name: `Test User ${i}`,
+                password: hashedPassword,
+            };
+        })
+    );
+
+    // 3. Perform the bulk insert
+    const createdUsers = await prisma.user.createMany({
+        data: usersData,
+        skipDuplicates: true, // Prevents errors if emails already exist
     });
 
-    const user2 = await prisma.user.create({
-        data: {
-            email: "bob@mail.com",
-            name: "Bob",
-            password: await bcrypt.hash("password", saltRounds),
-        },
-    });
+    console.log(`${createdUsers.count} users created successfully!`);
 
-    const user3 = await prisma.user.create({
-        data: {
-            email: "charlie@mail.com",
-            name: "Charlie",
-            password: await bcrypt.hash("password", saltRounds),
-        },
-    });
 
-    console.log(`✅ Created users: ${user1.name}, ${user2.name}, ${user3.name}`);
+    // const conv1 = await prisma.conversation.create({
+    //     data: {
+    //         participants: {
+    //             create: [
+    //                 { userId: user1.id },
+    //                 { userId: user2.id },
+    //             ],
+    //         },
+    //     },
+    // });
 
-    // --- Conversation 1: user1 <-> user2 ---
-    console.log("💬 Creating conversations...");
-    const conv1 = await prisma.conversation.create({
-        data: {
-            participants: {
-                create: [
-                    { userId: user1.id },
-                    { userId: user2.id },
-                ],
-            },
-        },
-    });
+    // await prisma.message.createMany({
+    //     data: [
+    //         {
+    //             conversationId: conv1.id,
+    //             senderId: user1.id,
+    //             content: "Hey Bob! How are you?",
+    //             type: MessageType.TEXT,
+    //             status: MessageStatus.READ,
+    //             createdAt: new Date(Date.now() - 1000 * 60 * 10),
+    //         },
+    //         {
+    //             conversationId: conv1.id,
+    //             senderId: user2.id,
+    //             content: "Hey Alice! I'm good, thanks. You?",
+    //             type: MessageType.TEXT,
+    //             status: MessageStatus.READ,
+    //             createdAt: new Date(Date.now() - 1000 * 60 * 8),
+    //         },
+    //         {
+    //             conversationId: conv1.id,
+    //             senderId: user1.id,
+    //             content: "Doing great! Want to catch up later?",
+    //             type: MessageType.TEXT,
+    //             status: MessageStatus.DELIVERED,
+    //             createdAt: new Date(Date.now() - 1000 * 60 * 5),
+    //         },
+    //     ],
+    // });
 
-    await prisma.message.createMany({
-        data: [
-            {
-                conversationId: conv1.id,
-                senderId: user1.id,
-                content: "Hey Bob! How are you?",
-                type: MessageType.TEXT,
-                status: MessageStatus.READ,
-                createdAt: new Date(Date.now() - 1000 * 60 * 10),
-            },
-            {
-                conversationId: conv1.id,
-                senderId: user2.id,
-                content: "Hey Alice! I'm good, thanks. You?",
-                type: MessageType.TEXT,
-                status: MessageStatus.READ,
-                createdAt: new Date(Date.now() - 1000 * 60 * 8),
-            },
-            {
-                conversationId: conv1.id,
-                senderId: user1.id,
-                content: "Doing great! Want to catch up later?",
-                type: MessageType.TEXT,
-                status: MessageStatus.DELIVERED,
-                createdAt: new Date(Date.now() - 1000 * 60 * 5),
-            },
-        ],
-    });
+    // // --- Conversation 2: user1 <-> user3 ---
+    // const conv2 = await prisma.conversation.create({
+    //     data: {
+    //         participants: {
+    //             create: [
+    //                 { userId: user1.id },
+    //                 { userId: user3.id },
+    //             ],
+    //         },
+    //     },
+    // });
 
-    // --- Conversation 2: user1 <-> user3 ---
-    const conv2 = await prisma.conversation.create({
-        data: {
-            participants: {
-                create: [
-                    { userId: user1.id },
-                    { userId: user3.id },
-                ],
-            },
-        },
-    });
-
-    await prisma.message.createMany({
-        data: [
-            {
-                conversationId: conv2.id,
-                senderId: user3.id,
-                content: "Alice, did you see the latest project update?",
-                type: MessageType.TEXT,
-                status: MessageStatus.READ,
-                createdAt: new Date(Date.now() - 1000 * 60 * 30),
-            },
-            {
-                conversationId: conv2.id,
-                senderId: user1.id,
-                content: "Not yet! Send me the link.",
-                type: MessageType.TEXT,
-                status: MessageStatus.SENT,
-                createdAt: new Date(Date.now() - 1000 * 60 * 25),
-            },
-        ],
-    });
+    // await prisma.message.createMany({
+    //     data: [
+    //         {
+    //             conversationId: conv2.id,
+    //             senderId: user3.id,
+    //             content: "Alice, did you see the latest project update?",
+    //             type: MessageType.TEXT,
+    //             status: MessageStatus.READ,
+    //             createdAt: new Date(Date.now() - 1000 * 60 * 30),
+    //         },
+    //         {
+    //             conversationId: conv2.id,
+    //             senderId: user1.id,
+    //             content: "Not yet! Send me the link.",
+    //             type: MessageType.TEXT,
+    //             status: MessageStatus.SENT,
+    //             createdAt: new Date(Date.now() - 1000 * 60 * 25),
+    //         },
+    //     ],
+    // });
 
     console.log("✅ Seeded users, conversations and messages successfully!");
 }
