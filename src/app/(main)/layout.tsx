@@ -41,7 +41,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     return (
         <div className="min-h-screen flex flex-col">
             <Header />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 mt-20 max-w-[1520px] mx-auto w-full mb-2">{children}</main>
             <Footer />
         </div>
     );
