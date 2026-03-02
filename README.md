@@ -1,39 +1,61 @@
 ## Getting Started
 
-## schema.prisma  
- edit this file manually whenever you want to add a table or a field.
+## Setup Instructions
 
-## migration.sql
-generated automatically by Prisma inside the prisma/migrations folder when you run npx prisma migrate dev
-
-##### 1
+### 1. Install Dependencies
 npm install
 npm run db:migrate
 npm run db:seed
 
+### 2. Configure Supabase Realtime
 
-First, run the development server:
+Update `.env.local` with your Supabase credentials:
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+Enable Realtime on the messages table in Supabase:
+- Go to Database → Replication
+- Enable replication for the `messages` table (else Realtime will NOT emit any events , but works normal insert, update, delete)
+
+### 3. Run the Development Server
 
 npm run dev
-yarn dev
-pnpm dev
-bun dev
+http://localhost:3000 in your browser.
 
+## Project Structure
 
-##### 2  
+- `prisma/` - Database schema and migrations
+- `src/app/` - Next.js App Router pages
+- `src/components/` - React components
+- `src/lib/` - Utilities and hooks
+- `src/actions/` - Server actions
+- `src/types/` - TypeScript type definitions
 
-create next with prisma :  installation
+## Features
 
-npx create-next-app@latest nextjs-prisma
-npm install prisma tsx --save-dev
-npm install @prisma/extension-accelerate @prisma/client
-npx prisma init
-npx prisma generate
+For detailed Supabase Realtime setup, see [SUPABASE_REALTIME_GUIDE.md](SUPABASE_REALTIME_GUIDE.md)
 
-##### 3
+## Database Schema Tables
+- `users` - User accounts
+- `conversations` - Chat conversations
+- `conversation_participants` - Users in each conversation
+- `messages` - Chat messages (Realtime enabled)
 
-prisma folder contains schema.prisma file and model declarations. 
-.env add db url
+###  Enable Realtime for Messages Table
+
+In Supabase Dashboard:
+1. Go to the SQL Editor
+2. Run this command to enable realtime on the messages table:
+
+sql :- ALTER PUBLICATION supabase_realtime ADD TABLE messages;
+
+1. Go to Database → Replication
+2. Enable replication for the `messages` table
+
+It is your ISP’s broken IPv6 routing for WebSockets. (use vpn)
+
+### use reddis (optional)
+for user message history
 
 ##### 4
 
@@ -59,6 +81,8 @@ for clear cache
 Remove-Item -Recurse -Force node_modules\.prisma
 then run migration
 
+npx prisma db pull : Synchronize your Prisma schema with your existing database
+
 ##### 5
 authentication
 jwt and next auth are using.
@@ -67,22 +91,16 @@ packages are bcrypt and jsonwebtoken.
 
 ###### 6
 No need to pass token manually - session cookies handle it.
-example for protected route :- getServerSession else no need for getServerSession().
 needs literal string values - it can't use imported constants because Next.js parses this at build time before your code runs.
 
 
-###### 7
-state management :- react hooks.
-
-
-###### 8
-env sample :- 
-DATABASE_URL = "   "
+###### env sample :- 
 DB_SUPABASE_URL = "   "
 NEXTAUTH_URL = http://localhost:3000
 NEXT_PUBLIC_BASE_URL = http://localhost:3000
 NEXTAUTH_SECRET = "    "
-
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 ##### 9
 working :- 

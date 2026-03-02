@@ -33,6 +33,11 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+SUPABASE_REALTIME_GUIDE.md
+SETUP_CHECKLIST.md
+API_OPTIMIZATION_GUIDE.md
+BACKEND_API_OPTIMIZATION.md
+
 # vercel
 .vercel
 

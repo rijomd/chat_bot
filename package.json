@@ -7,12 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:generate":"npx prisma generate",
+    "db:generate": "npx prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:migrate:reset": "prisma migrate reset --force",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:pull": "npx prisma db pull"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -20,6 +21,7 @@
   "dependencies": {
     "@prisma/client": "^6.11.1",
     "@prisma/extension-accelerate": "^2.0.2",
+    "@supabase/supabase-js": "^2.39.1",
     "bcrypt": "^6.0.0",
     "jsonwebtoken": "^9.0.2",
     "next": "15.3.5",

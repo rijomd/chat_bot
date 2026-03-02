@@ -40,7 +40,7 @@ export const UserList = ({ userList, onConversationCreated }: Props) => {
     return (
         <div className="w-full bg-white shadow-sm p-3 overflow-x-auto overflow-y-hidden no-scrollbar flex-shrink-0">
             <div className="flex gap-4 min-w-max">
-                {userList.map((item) => (
+                {userList?.length > 0 && userList.map((item) => (
                     <div key={item.id} className=" w-[140px]  flex flex-col items-center py-3 px-4" style={{ boxShadow: '0px 1px 8px 1px #c3e5c3' }}>
                         <div className="w-16 h-16 rounded-full p-1 bg-gradient-to-tr from-pink-400 to-emerald-400 shadow-md hover:shadow-lg transition-shadow">
                             <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center ring-2 ring-white">
@@ -61,6 +61,11 @@ export const UserList = ({ userList, onConversationCreated }: Props) => {
                         </button>
                     </div>
                 ))}
+                {userList?.length === 0 && (
+                    <div className="w-full text-center py-10 text-gray-500">
+                        No users available to chat with.
+                    </div>
+                )}
             </div>
         </div>
     )
