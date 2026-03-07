@@ -56,7 +56,7 @@ export default function Home() {
       {/* Divider */}
       <div className="w-full h-3 bg-gradient-to-r bg-grey-50"></div>
 
-      <div className="flex flex-1 overflow-hidden xs:overflow-auto min-h-[50vh]">
+      <div className="flex flex-1 overflow-hidden xs:overflow-auto min-h-[50vh] mt-2">
         <MyList myList={myList} handleChatWithUser={handleChatWithUser} selectedUser={selectedUser} />
         <ChatSection
           selectedUser={selectedUser}
