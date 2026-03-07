@@ -1,27 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { DB } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { response } from '@/lib/utils';
+import { Messages, StatusCodes } from '@/constants/requestsConstants';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return response({
+        data: null,
+        message: Messages.UN_AUTHORIZED,
+        code: StatusCodes.UN_AUTHORIZED
+      });
     }
 
     const { searchParams } = new URL(request.url);
     const messageId = searchParams.get('messageId');
 
     if (!messageId) {
-      return NextResponse.json(
-        { error: 'messageId is required' },
-        { status: 400 }
-      );
+      return response({
+        data: null,
+        message: Messages.REQUIRED,
+        code: StatusCodes.BAD_REQUEST
+      });
     }
 
     // Fetch message with sender information
@@ -40,20 +44,22 @@ export async function GET(request: NextRequest) {
     });
 
     if (!message) {
-      return NextResponse.json(
-        { error: 'Message not found' },
-        { status: 404 }
-      );
+      return response({
+        data: null,
+        message: Messages.NOT_FOUND,
+        code: StatusCodes.NOT_FOUND
+      });
     }
 
     // Verify user is part of the conversation
     const isParticipant = message.conversation.participants.some((p) => p.userId === Number(session.user.id));
 
     if (!isParticipant) {
-      return NextResponse.json(
-        { error: 'Not a participant in this conversation' },
-        { status: 403 }
-      );
+      return response({
+        data: null,
+        message: Messages.FORBIDDEN,
+        code: StatusCodes.FORBIDDEN
+      });
     }
 
     // Format message
@@ -68,15 +74,18 @@ export async function GET(request: NextRequest) {
       status: message.status,
     };
 
-    return NextResponse.json({
-      success: true,
+    return response({
       data: formattedMessage,
+      message: Messages.SUCCESS,
+      code: StatusCodes.SUCCESS
     });
+
   } catch (error) {
     console.error('Error fetching message:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch message' },
-      { status: 500 }
-    );
+    return response({
+      data: null,
+      message: Messages.SERVER_ERROR,
+      code: StatusCodes.SERVER_ERROR
+    });
   }
 }

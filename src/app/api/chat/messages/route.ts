@@ -1,27 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { DB } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { response } from '@/lib/utils';
+import { Messages, StatusCodes } from '@/constants/requestsConstants';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return response({
+        data: null,
+        message: Messages.UN_AUTHORIZED,
+        code: StatusCodes.UN_AUTHORIZED
+      });
     }
 
     const { searchParams } = new URL(request.url);
     const conversationId = searchParams.get('conversationId');
 
     if (!conversationId) {
-      return NextResponse.json(
-        { error: 'conversationId is required' },
-        { status: 400 }
-      );
+      return response({
+        data: null,
+        message: 'conversationId is required',
+        code: StatusCodes.BAD_REQUEST
+      });
     }
 
     // Verify user is part of this conversation
@@ -33,10 +37,11 @@ export async function GET(request: NextRequest) {
     });
 
     if (!isParticipant) {
-      return NextResponse.json(
-        { error: 'Not a participant in this conversation' },
-        { status: 403 }
-      );
+      return response({
+        data: null,
+        message: Messages.FORBIDDEN,
+        code: StatusCodes.FORBIDDEN
+      });
     }
 
     // Fetch messages with sender information
@@ -64,15 +69,17 @@ export async function GET(request: NextRequest) {
       status: msg.status,
     }));
 
-    return NextResponse.json({
-      success: true,
+    return response({
       data: formattedMessages,
+      message: Messages.SUCCESS,
+      code: StatusCodes.SUCCESS
     });
   } catch (error) {
     console.error('Error fetching messages:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch messages' },
-      { status: 500 }
-    );
+    return response({
+      data: null,
+      message: Messages.SERVER_ERROR,
+      code: StatusCodes.SERVER_ERROR
+    });
   }
 }

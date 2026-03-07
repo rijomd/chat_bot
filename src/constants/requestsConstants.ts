@@ -1,11 +1,13 @@
-
 export const StatusCodes = {
     SUCCESS: 200,
     BAD_REQUEST: 400,
     UN_AUTHORIZED: 401,
     NOT_FOUND: 404,
     CONFLICT: 409,
-    SERVER_ERROR: 500
+    SERVER_ERROR: 500,
+    TIMEOUT: 504,
+    BAD_GATEWAY: 502,
+    FORBIDDEN: 403
 }
 
 export const Messages = {
@@ -15,7 +17,9 @@ export const Messages = {
     NOT_FOUND: "Data not found",
     FORBIDDEN: "Access denied",
     SERVER_ERROR: "Internal server error",
-    PROTECTED_ROUTE: "This is a protected route"
+    PROTECTED_ROUTE: "This is a protected route",
+    CONVERSATION_EXISTS: "Conversation already exists",
+    REQUIRED: "Content required"
 }
 
 export const Endpoints = {

@@ -23,6 +23,12 @@ export const ChatSection = ({ selectedUser, currentUserId, currentUserName, isLo
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
+    useEffect(() => {
+        setMessage((prev) => {
+            return "";
+        });
+    }, [selectedUser]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMessage(e.target.value);
     };
@@ -85,7 +91,7 @@ export const ChatSection = ({ selectedUser, currentUserId, currentUserName, isLo
         <div className="hidden md:flex flex-col w-2/3 bg-gray-50">
             {/* Header */}
             <div className="p-4 bg-white shadow-sm">
-                <h2 className="font-semibold text-lg">{selectedUser?.participants?.[0]?.name || "Chat with User"}</h2>
+                <h2 className="font-semibold text-lg text-black">{selectedUser?.participants?.[0]?.name || "Chat with User"}</h2>
             </div>
 
             {/* Messages */}
@@ -120,7 +126,7 @@ export const ChatSection = ({ selectedUser, currentUserId, currentUserName, isLo
                 <input
                     type="text"
                     placeholder="Type a message..."
-                    className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
                     onChange={handleChange}
                     onKeyPress={handleKeyPress}
                     value={message}

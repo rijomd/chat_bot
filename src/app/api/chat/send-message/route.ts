@@ -1,27 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { DB } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { response } from '@/lib/utils';
+import { Messages, StatusCodes } from '@/constants/requestsConstants';
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return response({
+        data: null,
+        message: Messages.UN_AUTHORIZED,
+        code: StatusCodes.UN_AUTHORIZED
+      });
     }
 
     const body = await request.json();
     const { conversationId, content, type = 'TEXT' } = body;
 
     if (!conversationId || !content) {
-      return NextResponse.json(
-        { error: 'conversationId and content are required' },
-        { status: 400 }
-      );
+      return response({
+        data: null,
+        message: 'conversationId and content are required',
+        code: StatusCodes.BAD_REQUEST
+      });
     }
 
     // Verify user is part of this conversation
@@ -33,10 +37,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (!isParticipant) {
-      return NextResponse.json(
-        { error: 'Not a participant in this conversation' },
-        { status: 403 }
-      );
+      return response({
+        data: null,
+        message: Messages.FORBIDDEN,
+        code: StatusCodes.FORBIDDEN
+      });
     }
 
     // Create message
@@ -65,15 +70,17 @@ export async function POST(request: NextRequest) {
       status: message.status,
     };
 
-    return NextResponse.json({
-      success: true,
+    return response({
       data: formattedMessage,
+      message: Messages.SUCCESS,
+      code: StatusCodes.SUCCESS
     });
   } catch (error) {
     console.error('Error sending message:', error);
-    return NextResponse.json(
-      { error: 'Failed to send message' },
-      { status: 500 }
-    );
+    return response({
+      data: null,
+      message: Messages.SERVER_ERROR,
+      code: StatusCodes.SERVER_ERROR
+    });
   }
 }

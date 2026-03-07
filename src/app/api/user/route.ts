@@ -1,7 +1,12 @@
-import { NextResponse } from "next/server"
+import { response } from "@/lib/utils"
+import { Messages, StatusCodes } from "@/constants/requestsConstants"
 
 export const GET = async () => {
-    return NextResponse.json("success")
+    return response({
+        data: null,
+        message: Messages.SUCCESS,
+        code: StatusCodes.SUCCESS
+    })
 }
 
 
