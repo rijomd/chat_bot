@@ -8,13 +8,15 @@ datasource db {
 }
 
 model User {
-  id            Int                       @id @default(autoincrement())
-  email         String                    @unique
-  name          String?
-  password      String
-  createdAt     DateTime                  @default(now())
-  conversations ConversationParticipant[]
-  sentMessages  Message[]
+  id                     Int                       @id @default(autoincrement())
+  email                  String                    @unique
+  name                   String?
+  password               String
+  createdAt              DateTime                  @default(now())
+  conversations          ConversationParticipant[]
+  sentMessages           Message[]
+  chatbotConversations   ChatbotUserConversation[]
+  chatbotMessages        ChatbotMessage[]
 
   @@map("users")
 }
@@ -59,6 +61,54 @@ model Message {
   @@map("messages")
 }
 
+model Chatbot {
+  id           String                    @id @default(cuid())
+  label        String                    @unique
+  description  String?
+  icon         String?
+  color        String?
+  backgroundColor String?
+  textColor    String?
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  userChats    ChatbotUserConversation[]
+  messages     ChatbotMessage[]
+
+  @@map("chatbots")
+}
+
+model ChatbotUserConversation {
+  id        String          @id @default(cuid())
+  chatbotId String
+  userId    Int
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  chatbot   Chatbot         @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  ChatbotMessage[]
+
+  @@unique([chatbotId, userId])
+  @@map("chatbot_user_conversations")
+}
+
+model ChatbotMessage {
+  id                    String                @id @default(cuid())
+  chatbotUserConversationId String
+  chatbotId             String
+  senderId              Int?
+  content               String
+  senderType            ChatbotMessageSender  @default(USER)
+  type                  MessageType           @default(TEXT)
+  status                MessageStatus         @default(SENT)
+  createdAt             DateTime              @default(now())
+  conversation          ChatbotUserConversation @relation(fields: [chatbotUserConversationId], references: [id], onDelete: Cascade)
+  chatbot               Chatbot               @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  sender                User?                 @relation(fields: [senderId], references: [id])
+
+  @@index([chatbotUserConversationId, createdAt])
+  @@map("chatbot_messages")
+}
+
 enum MessageType {
   TEXT
   IMAGE
@@ -71,4 +121,9 @@ enum MessageStatus {
   SENT
   DELIVERED
   READ
+}
+
+enum ChatbotMessageSender {
+  USER
+  BOT
 }

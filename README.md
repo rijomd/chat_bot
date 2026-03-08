@@ -83,6 +83,8 @@ then run migration
 
 npx prisma db pull : Synchronize your Prisma schema with your existing database
 
+Most of the timenpm run db:migrateKeeps your DB and code in sync and saves a history of changes.Just testing / Draftsnpm run db:pushFaster; avoids cluttering your project with many small migration files.Code doesn't see changesnpm run db:generateUse this if your DB is updated but your TypeScript types are still old.
+
 ##### 5
 authentication
 jwt and next auth are using.

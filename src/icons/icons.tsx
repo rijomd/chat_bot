@@ -76,8 +76,8 @@ export const menuItems: MenuItem[] = [
         <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
       </svg>
     ),
-    label: "Write for me",
-    desc: "Draft messages & captions",
+    label: "Sports",
+    desc: "Sports related news and updates",
     color: "from-emerald-400 to-teal-500",
     bg: "bg-emerald-50",
     text: "text-emerald-700",
@@ -90,8 +90,8 @@ export const menuItems: MenuItem[] = [
         <path d="M21 21l-4.35-4.35" />
       </svg>
     ),
-    label: "Search smarter",
-    desc: "Find anything instantly",
+    label: "Movies",
+    desc: "Find anything about movies",
     color: "from-blue-400 to-indigo-500",
     bg: "bg-blue-50",
     text: "text-blue-700",
@@ -103,8 +103,8 @@ export const menuItems: MenuItem[] = [
         <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
       </svg>
     ),
-    label: "Create chat Bot",
-    desc: "Get key points fast",
+    label: "Fashion",
+    desc: "Get the latest fashion trends",
     color: "from-violet-400 to-purple-500",
     bg: "bg-violet-50",
     text: "text-violet-700",
@@ -116,23 +116,10 @@ export const menuItems: MenuItem[] = [
         <path d="M5 3l14 9-14 9V3z" />
       </svg>
     ),
-    label: "Suggest reply",
-    desc: "Smart response ideas",
+    label: "Cooking",
+    desc: "Get smart cooking tips and recipes",
     color: "from-orange-400 to-rose-500",
     bg: "bg-orange-50",
     text: "text-orange-700",
-  },
-  {
-    id: 5,
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
-        <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-      </svg>
-    ),
-    label: "Translate",
-    desc: "Any language, instantly",
-    color: "from-cyan-400 to-sky-500",
-    bg: "bg-cyan-50",
-    text: "text-cyan-700",
-  },
+  }
 ];

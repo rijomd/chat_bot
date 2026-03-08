@@ -1,17 +1,28 @@
 import React from 'react'
 import { placeholderIcons } from '../utils/Placeholder'
 import { AIButton } from '../formElements/AIButton';
+import { Chatbot } from '@/types/chatbot';
 
 type Props = {
     myList: any[];
     handleChatWithUser: (item: any) => void;
     selectedUser: any | null;
+    selectChatbot: (chatbot: Chatbot) => void;
+    chatbotList: Chatbot[];
+    selectedChatbot: Chatbot | null;
 }
 
-export const MyList = ({ myList, handleChatWithUser, selectedUser }: Props) => {
+export const MyList = ({ 
+    myList, 
+    handleChatWithUser, 
+    selectedUser,
+    selectChatbot,
+    chatbotList,
+    selectedChatbot
+}: Props) => {
     return (
         <div className="w-full md:w-1/3 bg-white overflow-y-auto no-scrollbar relative">
-            <AIButton />
+            <AIButton selectChatOption={selectChatbot} chatBots={chatbotList} />
             {myList?.length > 0 && myList.map((item, index) => (
                 <div
                     onClick={() => handleChatWithUser(item)}

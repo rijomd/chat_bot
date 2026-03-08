@@ -1,14 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 
-import { menuItems } from "@/icons/icons";
 import { DragState, Position } from "@/types/button";
+import { Chatbot } from "@/types/chatbot";
 
-export const AIButton = () => {
+type props = {
+    selectChatOption: (item: Chatbot) => void;
+    chatBots?: Chatbot[];
+}
+
+export const AIButton = ({ selectChatOption, chatBots = [] }: props) => {
     const [open, setOpen] = useState<boolean>(false);
     const [pos, setPos] = useState<Position>({ x: null, y: null });
     const [dragging, setDragging] = useState<boolean>(false);
     const [hasMoved, setHasMoved] = useState<boolean>(false);
-    const [activeItem, setActiveItem] = useState<number | null>(null);
+    const [activeItem, setActiveItem] = useState<string | null>(null);
     const [pulse, setPulse] = useState<boolean>(true);
 
     const btnRef = useRef<HTMLDivElement>(null);
@@ -78,12 +83,10 @@ export const AIButton = () => {
         if (!hasMoved) setOpen((v) => !v);
     };
 
-    const handleItemClick = (id: number) => {
-        setActiveItem(id);
-        setTimeout(() => {
-            setActiveItem(null);
-            setOpen(false);
-        }, 600);
+    const handleItemClick = (item: Chatbot) => {
+        setActiveItem(item.id);
+        setOpen(false);
+        selectChatOption(item);
     };
 
     if (pos.x === null || pos.y === null) return null;
@@ -117,7 +120,7 @@ export const AIButton = () => {
                                 <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z" /></svg>
                             </div>
                             <div>
-                                <p className="text-white font-semibold text-sm">Meta AI</p>
+                                <p className="text-white font-semibold text-sm">Chat Options</p>
                                 <p className="text-green-200 text-xs">What can I help you with?</p>
                             </div>
                             <button onClick={() => setOpen(false)} className="ml-auto w-7 h-7 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
@@ -127,28 +130,28 @@ export const AIButton = () => {
 
                         {/* Options */}
                         <div className="p-2">
-                            {menuItems.map((item, i) => (
+                            {chatBots.map((item, i) => (
                                 <button
                                     key={item.id}
-                                    onClick={() => handleItemClick(item.id)}
-                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-left group ${activeItem === item.id ? item.bg + " scale-95" : "hover:bg-gray-50"}`}
+                                    onClick={() => handleItemClick(item)}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-left group ${activeItem === item.id ? (item.backgroundColor || "bg-gray-100") + " scale-95" : "hover:bg-gray-50"}`}
                                     style={{ animation: `slideIn 0.2s ease ${i * 0.04}s both` } as React.CSSProperties}
                                 >
-                                    <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform`}>
-                                        {item.icon}
+                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform text-lg  bg-gradient-to-br ${item.color} `}                                    >
+                                        {item.icon || "🤖"}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className={`text-sm font-semibold ${activeItem === item.id ? item.text : "text-gray-800"}`}>{item.label}</p>
-                                        <p className="text-xs text-gray-400 truncate">{item.desc}</p>
+                                        <p className={`text-sm font-semibold ${activeItem === item.id ? (item.textColor || "text-gray-800") : "text-gray-800"}`}>{item.label}</p>
+                                        <p className="text-xs text-gray-400 truncate">{item.description}</p>
                                     </div>
                                     {activeItem === item.id && (
-                                        <svg viewBox="0 0 24 24" className={`w-4 h-4 ${item.text} flex-shrink-0`} fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12l5 5L20 7" /></svg>
+                                        <svg viewBox="0 0 24 24" className={`w-4 h-4 ${item.textColor || "text-gray-800"} flex-shrink-0`} fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12l5 5L20 7" /></svg>
                                     )}
                                 </button>
                             ))}
                         </div>
                         <div className="px-4 py-2.5 border-t border-gray-100">
-                            <p className="text-center text-xs text-gray-400">Powered by <span className="font-semibold text-gray-500">Meta AI</span></p>
+                            <p className="text-center text-xs text-gray-400">Powered by <span className="font-semibold text-gray-500">Chat Ai</span></p>
                         </div>
                     </div>
                     {/* Arrow */}
