@@ -19,15 +19,19 @@ export type ChatbotUserConversation = {
     chatbot?: Chatbot;
 }
 
+export type SenderType = 'USER' | 'BOT';
+export type ContentType = 'TEXT' | 'IMAGE' | 'FILE' | 'AUDIO' | 'VIDEO';
+export type Status = 'SENT' | 'DELIVERED' | 'READ';
+
 export type ChatbotMessage = {
     id: string;
     chatbotUserConversationId?: string;
     chatbotId: string;
     senderId?: number;
     content: string;
-    senderType: 'USER' | 'BOT';
-    type?: 'TEXT' | 'IMAGE' | 'FILE' | 'AUDIO' | 'VIDEO';
-    status?: 'SENT' | 'DELIVERED' | 'READ';
+    senderType: SenderType;
+    type?: ContentType;
+    status?: Status;
     createdAt: Date;
     sender?: {
         id: number;

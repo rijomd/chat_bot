@@ -1,17 +1,19 @@
 import { DB } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { response } from "@/lib/utils";
+import { Messages, StatusCodes } from "@/constants/requestsConstants";
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
+      return response({
+        data: null,
+        message: Messages.UN_AUTHORIZED,
+        code: StatusCodes.UN_AUTHORIZED
+      });
     }
 
     const chatBots = await DB.chatbot.findMany({
@@ -30,15 +32,17 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({
-      success: true,
+    return response({
       data: chatBots,
+      message: Messages.SUCCESS,
+      code: StatusCodes.SUCCESS
     });
   } catch (error) {
     console.error("❌ Error fetching chatBots:", error);
-    return NextResponse.json(
-      { success: false, message: "Error fetching chatBots" },
-      { status: 500 }
-    );
+    return response({
+      data: null,
+      message: Messages.SERVER_ERROR,
+      code: StatusCodes.SERVER_ERROR
+    });
   }
 }

@@ -1,26 +1,29 @@
 import { DB } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { response } from "@/lib/utils";
+import { Messages, StatusCodes } from "@/constants/requestsConstants";
 
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
+      return response({
+        data: null,
+        message: Messages.UN_AUTHORIZED,
+        code: StatusCodes.UN_AUTHORIZED
+      });
     }
 
     const { conversationId, content } = await request.json();
 
     if (!conversationId || !content) {
-      return NextResponse.json(
-        { success: false, message: "Conversation ID and content are required" },
-        { status: 400 }
-      );
+      return response({
+        data: null,
+        message: Messages.REQUIRED,
+        code: StatusCodes.BAD_REQUEST
+      });
     }
 
     const userId = Number(session.user.id);
@@ -31,13 +34,28 @@ export async function POST(request: Request) {
     });
 
     if (!conversation || conversation.userId !== userId) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 403 }
-      );
+      return response({
+        data: null,
+        message: Messages.FORBIDDEN,
+        code: StatusCodes.FORBIDDEN
+      });
+    }
+
+    const chatbot = await DB.chatbot.findUnique({
+      where: { id: conversation.chatbotId },
+    });
+
+    if (!chatbot) {
+      return response({
+        data: null,
+        message: Messages.NOT_FOUND,
+        code: StatusCodes.NOT_FOUND
+      });
     }
 
     // generate ai replay and save message
+
+    const chatbotTopic = chatbot.label;
 
     // Save user message
     const message = await DB.chatbotMessage.create({
@@ -60,15 +78,37 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      data: message,
+    const chatBotMessage = await DB.chatbotMessage.create({
+      data: {
+        chatbotUserConversationId: conversationId,
+        chatbotId: conversation.chatbotId,
+        senderId: userId,
+        content: "sample",
+        senderType: "BOT",
+        type: "TEXT",
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return response({
+      data: chatBotMessage,
+      message: Messages.SUCCESS,
+      code: StatusCodes.SUCCESS
     });
   } catch (error) {
     console.error("❌ Error sending chatbot message:", error);
-    return NextResponse.json(
-      { success: false, message: "Error sending message" },
-      { status: 500 }
-    );
+    return response({
+      data: null,
+      message: Messages.SERVER_ERROR,
+      code: StatusCodes.SERVER_ERROR
+    });
   }
 }

@@ -1,26 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { DB } from "@/lib/db";
+import { response } from "@/lib/utils";
+import { Messages, StatusCodes } from "@/constants/requestsConstants";
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
+      return response({
+        data: null,
+        message: Messages.UN_AUTHORIZED,
+        code: StatusCodes.UN_AUTHORIZED
+      });
     }
 
     const messageId = request.nextUrl.searchParams.get("messageId");
 
     if (!messageId) {
-      return NextResponse.json(
-        { success: false, message: "messageId is required" },
-        { status: 400 }
-      );
+      return response({
+        data: null,
+        message: Messages.REQUIRED,
+        code: StatusCodes.BAD_REQUEST
+      });
     }
 
     const message = await DB.chatbotMessage.findUnique({
@@ -33,21 +37,24 @@ export async function GET(request: NextRequest) {
     });
 
     if (!message) {
-      return NextResponse.json(
-        { success: false, message: "Message not found" },
-        { status: 404 }
-      );
+      return response({
+        data: null,
+        message: Messages.NOT_FOUND,
+        code: StatusCodes.NOT_FOUND
+      });
     }
 
-    return NextResponse.json({
-      success: true,
+    return response({
       data: message,
+      message: Messages.SUCCESS,
+      code: StatusCodes.SUCCESS
     });
   } catch (error) {
     console.error("Error fetching chatbot message:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
+    return response({
+      data: null,
+      message: Messages.SERVER_ERROR,
+      code: StatusCodes.SERVER_ERROR
+    });
   }
 }

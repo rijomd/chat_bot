@@ -1,27 +1,30 @@
 import { DB } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { response } from "@/lib/utils";
+import { Messages, StatusCodes } from "@/constants/requestsConstants";
 
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
+      return response({
+        data: null,
+        message: Messages.UN_AUTHORIZED,
+        code: StatusCodes.UN_AUTHORIZED
+      });
     }
 
     const url = new URL(request.url);
     const conversationId = url.searchParams.get("conversationId");
 
     if (!conversationId) {
-      return NextResponse.json(
-        { success: false, message: "Conversation ID is required" },
-        { status: 400 }
-      );
+      return response({
+        data: null,
+        message: Messages.REQUIRED,
+        code: StatusCodes.BAD_REQUEST
+      });
     }
 
     // Verify conversation belongs to current user
@@ -30,10 +33,11 @@ export async function GET(request: Request) {
     });
 
     if (!conversation || conversation.userId !== Number(session.user.id)) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 403 }
-      );
+      return response({
+        data: null,
+        message: Messages.FORBIDDEN,
+        code: StatusCodes.FORBIDDEN
+      });
     }
 
     const messages = await DB.chatbotMessage.findMany({
@@ -54,15 +58,17 @@ export async function GET(request: Request) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
+    return response({
       data: messages,
+      message: Messages.SUCCESS,
+      code: StatusCodes.SUCCESS
     });
   } catch (error) {
     console.error("❌ Error fetching chatbot messages:", error);
-    return NextResponse.json(
-      { success: false, message: "Error fetching messages" },
-      { status: 500 }
-    );
+    return response({
+      data: null,
+      message: Messages.SERVER_ERROR,
+      code: StatusCodes.SERVER_ERROR
+    });
   }
 }

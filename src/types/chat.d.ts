@@ -5,6 +5,9 @@ export type User = {
     createdAt: string
 }
 
+type ContentType = 'TEXT' | 'IMAGE' | 'FILE' | 'AUDIO' | 'VIDEO';
+type Status = 'SENT' | 'DELIVERED' | 'READ';
+
 export type ChatMessage = {
     id: string;
     conversationId: string;
@@ -12,8 +15,8 @@ export type ChatMessage = {
     senderName: string;
     content: string;
     createdAt: string;
-    type: 'TEXT' | 'IMAGE' | 'FILE' | 'AUDIO' | 'VIDEO';
-    status: 'SENT' | 'DELIVERED' | 'READ';
+    type: ContentType;
+    status: Status;
 }
 
 export type ConversationData = {
