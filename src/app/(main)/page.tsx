@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { ChatSection } from "@/components/chat/ChatSection";
 import { MyList } from "@/components/chat/MyList";
 import { UserList } from "@/components/chat/UserList";
-import { myListAction, userListAction, chatbotListAction, createChatbotConversation, getChatbotMessages } from "@/actions/chatActions";
+import { myListAction, userListAction, chatbotListAction, createChatbotConversation } from "@/actions/chatActions";
 import { useSupabaseRealtimeChat } from "@/lib/useSupabaseRealtimeChat";
 
 import { User } from "@prisma/client";
 import ChatSkeleton from "@/components/chat/ChatSkeleton";
 import { useSession } from "next-auth/react";
-import { Chatbot, ChatbotMessage } from "@/types/chatbot";
+import { Chatbot } from "@/types/chatbot";
 
 export default function Home() {
 
@@ -22,7 +22,6 @@ export default function Home() {
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [selectedChatbot, setSelectedChatbot] = useState<Chatbot | null>(null);
   const [chatbotConversationId, setChatbotConversationId] = useState<string | null>(null);
-  const [chatbotMessages, setChatbotMessages] = useState<ChatbotMessage[]>([]);
   const { joinConversation, isLoading, currentConversation, messages } = useSupabaseRealtimeChat();
 
   const loadInitialData = async () => {
@@ -49,14 +48,12 @@ export default function Home() {
     setSelectedUser(item);
     setSelectedChatbot(null);
     setChatbotConversationId(null);
-    setChatbotMessages([]);
 
     if (item?.id) {
       joinConversation(item.id);
     }
   };
 
-  // need to modify to realtime 
   const handleSelectChatbot = async (chatbot: Chatbot) => {
     setSelectedChatbot(chatbot);
     setSelectedUser(null);
@@ -64,15 +61,6 @@ export default function Home() {
     const result = await createChatbotConversation(chatbot.id);
     if (result.success) {
       setChatbotConversationId(result.data.id);
-      const msgs = await getChatbotMessages(result.data.id);
-      setChatbotMessages(msgs || []);
-    }
-  };
-
-  const handleChatbotMessageSent = async () => {
-    if (chatbotConversationId) {
-      const msgs = await getChatbotMessages(chatbotConversationId);
-      setChatbotMessages(msgs || []);
     }
   };
 
@@ -106,8 +94,6 @@ export default function Home() {
           currentConversation={currentConversation}
           messages={messages}
           chatbotConversationId={chatbotConversationId}
-          chatbotMessages={chatbotMessages}
-          onChatbotMessageSent={handleChatbotMessageSent}
         />
       </div>
 

@@ -37,6 +37,8 @@ export async function POST(request: Request) {
       );
     }
 
+    // generate ai replay and save message
+
     // Save user message
     const message = await DB.chatbotMessage.create({
       data: {

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useSupabaseRealtimeChat } from '@/lib/useSupabaseRealtimeChat';
+import { useSupabaseChatbotRealtimeChat } from '@/lib/useSupabaseChatbotRealtimeChat';
 import { sendChatbotMessage } from '@/actions/chatActions';
 import { ChatMessage, ConversationData } from '@/types/chat';
 import { ChatbotMessage } from '@/types/chatbot';
@@ -15,8 +16,6 @@ type Props = {
     currentConversation: ConversationData | null;
     messages: ChatMessage[];
     chatbotConversationId?: string | null;
-    chatbotMessages?: ChatbotMessage[];
-    onChatbotMessageSent?: () => void;
 };
 
 export const ChatSection = ({ 
@@ -28,17 +27,23 @@ export const ChatSection = ({
     currentConversation, 
     messages,
     chatbotConversationId,
-    chatbotMessages = [],
-    onChatbotMessageSent
 }: Props) => {
     const [message, setMessage] = useState("");
     const { sendMessage } = useSupabaseRealtimeChat();
+    const { chatbotMessages, joinChatbotConversation } = useSupabaseChatbotRealtimeChat();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [isSending, setIsSending] = useState(false);
 
     const isUserChat = !!selectedUser && !selectedChatbot;
     const isChatbotChat = !!selectedChatbot && !selectedUser;
     const displayMessages = isChatbotChat ? chatbotMessages : messages;
+
+    // Join chatbot conversation when chatbotConversationId changes
+    useEffect(() => {
+        if (isChatbotChat && chatbotConversationId) {
+            joinChatbotConversation(chatbotConversationId);
+        }
+    }, [isChatbotChat, chatbotConversationId, joinChatbotConversation]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -74,7 +79,6 @@ export const ChatSection = ({
             const result = await sendChatbotMessage(chatbotConversationId!, message);
             if (result.success) {
                 setMessage("");
-                onChatbotMessageSent?.();
             }
         }
         setIsSending(false);
